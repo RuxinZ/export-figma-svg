@@ -2,6 +2,7 @@ import 'dotenv/config'
 import axios from 'axios'
 import figmaRestApi from './api/'
 import {
+  processSVG,
   writeToFile,
   findAllByValue,
   filterPrivateComponents,
@@ -60,10 +61,12 @@ const svgExporter = async () => {
 
         // Get SVG DOM
         const svgDOM = await axios.get(svgURL.data.images[svg.id])
-        writeToFile(
-          OUTPUT_FOLDER + `${camelCaseToDash(svgName)}.svg`,
-          svgDOM.data
-        )
+
+        processSVG(`${camelCaseToDash(svgName)}.svg`, svgDOM.data)
+        // writeToFile(
+        //   OUTPUT_FOLDER + `${camelCaseToDash(svgName)}.svg`,
+        //   svgDOM.data
+        // );
       })
 
       await Promise.all(requests)

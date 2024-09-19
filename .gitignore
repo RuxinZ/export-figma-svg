@@ -1,6 +1,6 @@
 node_modules
 .env
-src/svg
+yarn.lock
 
 built/
 # TS -incremental file

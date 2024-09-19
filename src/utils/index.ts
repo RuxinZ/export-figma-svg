@@ -1,4 +1,5 @@
 import * as fs from 'fs'
+import { parse } from 'node-html-parser'
 
 export const writeToFile = async (
   filename: string,
@@ -8,6 +9,34 @@ export const writeToFile = async (
     if (error) throw error
     console.log(`The file ${filename} has been saved!`)
   })
+}
+
+const OUTPUT_FILE = './src/svg/iconsMap.ts'
+export const processSVG = async (filename: string, data: string) => {
+  try {
+    const root = parse(data)
+    const pathElements = root.querySelectorAll('path')
+    const paths = pathElements
+      .map((pathEl) => {
+        const fillAttr = pathEl.getAttribute('fill')
+        if (fillAttr) {
+          pathEl.setAttribute('fill', 'current')
+        }
+        return pathEl.outerHTML
+      })
+      .join('')
+
+    const fileContent = fs.readFileSync(OUTPUT_FILE, 'utf8')
+    const fileNameWithoutExtension = filename.split('.')[0]
+    const svgEntry = `\n  \'${fileNameWithoutExtension}\': \'${paths}\',`
+    const updatedContent = fileContent.replace(/}/, `${svgEntry}}`)
+
+    fs.writeFileSync(OUTPUT_FILE, updatedContent, 'utf8')
+
+    console.log(`Appended ${fileNameWithoutExtension} to iconsMap.ts`)
+  } catch (error) {
+    console.error('Error processing SVG:', error)
+  }
 }
 
 export const camelCaseToDash = (string: string) => {
@@ -53,6 +82,7 @@ export const createFolder = async (path: string) => {
 export const filterPrivateComponents = (svgs: any[]) =>
   svgs.filter(({ name }) => !name.startsWith('.') && !name.startsWith('_'))
 
+exports.processSVG = processSVG
 exports.writeToFile = writeToFile
 exports.camelCaseToDash = camelCaseToDash
 exports.flattenArray = flattenArray
