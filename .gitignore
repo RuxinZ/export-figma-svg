@@ -5,4 +5,4 @@ yarn.lock
 built/
 # TS -incremental file
 tsconfig.tsbuildinfo
-src/svg
+src/svg/*.svelte
