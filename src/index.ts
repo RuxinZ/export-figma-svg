@@ -62,11 +62,13 @@ const svgExporter = async () => {
         // Get SVG DOM
         const svgDOM = await axios.get(svgURL.data.images[svg.id])
 
-        processSVG(`${camelCaseToDash(svgName)}.svg`, svgDOM.data)
-        // writeToFile(
-        //   OUTPUT_FOLDER + `${camelCaseToDash(svgName)}.svg`,
-        //   svgDOM.data
-        // );
+        // processSVG(`${camelCaseToDash(svgName)}.svg`, svgDOM.data) // Save to 'iconsMap.ts' file
+
+        // Create Svelte components
+        writeToFile(
+          OUTPUT_FOLDER + `${camelCaseToDash(svgName)}.svg`,
+          svgDOM.data
+        )
       })
 
       await Promise.all(requests)
@@ -84,6 +86,7 @@ const svgExporter = async () => {
   } catch (err) {
     console.error(err)
   }
+  console.log('Completed creating files')
 }
 
 svgExporter()

@@ -1,14 +1,69 @@
 import * as fs from 'fs'
 import { parse } from 'node-html-parser'
+import path from 'path'
+import { icons } from '../svg/icons'
 
-export const writeToFile = async (
-  filename: string,
-  data: string | NodeJS.ArrayBufferView
-) => {
-  return fs.writeFile(filename, data, (error) => {
-    if (error) throw error
-    console.log(`The file ${filename} has been saved!`)
-  })
+function kebabToPascal(str: string) {
+  return str
+    .split('-')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join('')
+}
+
+export const writeToFile = async (filename: string, data: string) => {
+  try {
+    const fileNameWithoutExtension = path.basename(filename, '.svg')
+    if (icons.includes(fileNameWithoutExtension)) {
+      console.log(`${fileNameWithoutExtension} has been imported`)
+      return
+    }
+
+    const root = parse(data)
+    const pathElements = root.querySelectorAll('path')
+    const paths = pathElements
+      .map((pathEl) => {
+        const fillAttr = pathEl.getAttribute('fill')
+        if (fillAttr) {
+          pathEl.setAttribute('fill', 'currentColor')
+        }
+        return pathEl.outerHTML
+      })
+      .join('\n    ')
+
+    const svgElement = root.querySelector('svg')
+    const viewBox = svgElement?.getAttribute('viewBox') || '0 0 24 24'
+    const [, , viewBoxWidth, viewBoxHeight] = viewBox.split(' ')
+
+    const componentName = kebabToPascal(fileNameWithoutExtension)
+    const outputFileName = `${componentName}.svelte`
+    const outputPath = path.join('./src/svg/', outputFileName)
+    const componentContent = `<script lang="ts">
+export let viewBoxWidth = ${viewBoxWidth}
+export let viewBoxHeight = ${viewBoxHeight}
+</script>
+
+<svg
+  class="w-full transition-inherit"
+  fill="currentColor"
+  viewBox="0 0 {viewBoxWidth} {viewBoxHeight}"
+  aria-label="icon-${fileNameWithoutExtension.toLowerCase()}"
+  role="img">
+  ${paths}
+</svg>
+`
+
+    fs.writeFileSync(outputPath, componentContent, 'utf8')
+    const fileContent = fs.readFileSync('./src/svg/icons.ts', 'utf8')
+    const updatedContent = fileContent.replace(
+      /]/,
+      `\'${fileNameWithoutExtension}\',]`
+    )
+    fs.writeFileSync('./src/svg/icons.ts', updatedContent, 'utf8')
+
+    console.log(`Created ${outputFileName}`)
+  } catch (error) {
+    throw new Error(`Error processing SVG ${filename}: ` + error)
+  }
 }
 
 const OUTPUT_FILE = './src/svg/iconsMap.ts'
