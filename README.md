@@ -1,4 +1,4 @@
-# Import SVGs from Figma as Svelte Component via CLI
+# Import SVGs from Figma as Svelte Components via CLI
 
 ### Output
 
@@ -11,7 +11,7 @@ SVGs will be saved as Svelte components in `src/svg` folder
 3. Copy the URL in the browser; it should look similar to `https://www.figma.com/file/abcASewbASmnas/Test?node-id=1392-3123`
 4. Run `ts-node src/setupEnv.ts` and paste in your URL copied from step 3 when prompted. This will generate a `.env` file
 5. Generate a DEV_TOKEN a.k.a Personal Access Token by going to Help and Account > Account Settings > Personal Access Token
-6. Add your DEV_TOKEN from step 5 into `.env` file. Note: `FIGMA_PROJECT_NODE_ID` should have a format of `[number]:[number]`, need to use ":" instead of "-" in between the numbers
+6. Add your DEV_TOKEN from step 5 into `.env` file.
 7. Run `ts-node src/index.ts`, for any icon that does not exist in `src/svg/icons.ts`, a svelte component for that svg will be generated into `src/svg` folder and `src/svg/icons.ts` will update to include the icon name.
 
 ### Filtering Private Components (starting with a . or a \_)

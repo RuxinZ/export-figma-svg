@@ -2,7 +2,7 @@ import * as readline from 'node:readline'
 import * as fs from 'fs'
 const rl = readline.createInterface({
   input: process.stdin,
-  output: process.stdout
+  output: process.stdout,
 })
 
 import { ENV_OUTPUT_FILE } from './constants'
@@ -14,10 +14,10 @@ const isValidURL = (url: string) => {
     return false
   }
   return true
-};
+}
 
 const question =
-  'Please enter your Figma project URL (e.g. https://www.figma.com/file/abcASewbASmnas/Test?node-id=1%3123): ';
+  'Please enter your Figma project URL (e.g. https://www.figma.com/file/abcASewbASmnas/Test?node-id=1%3123): '
 
 rl.question(`${question}`, (input) => {
   console.log(`Your Figma project URL is: ${input}`)
@@ -28,7 +28,10 @@ rl.question(`${question}`, (input) => {
     const node = url.search
 
     const projectID = pathname.split('/')[2]
-    const nodeID = decodeURIComponent(node.replace('?node-id=', ''))
+    const nodeID = decodeURIComponent(node.replace('?node-id=', '')).replace(
+      '-',
+      ':'
+    )
 
     if (typeof projectID !== 'undefined' && typeof nodeID !== 'undefined') {
       const data = [
@@ -36,7 +39,7 @@ rl.question(`${question}`, (input) => {
         `FIGMA_PROJECT_ID=${projectID}`,
         `FIGMA_PROJECT_NODE_ID=${nodeID}`,
         'DEV_ACCESS_TOKEN=',
-        'FILTER_PRIVATE_COMPONENTS=false'
+        'FILTER_PRIVATE_COMPONENTS=false',
       ]
 
       let file = fs.createWriteStream(ENV_OUTPUT_FILE)
